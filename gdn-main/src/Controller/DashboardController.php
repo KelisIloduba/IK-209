@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
+use App\Entity\Note;
 
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -22,25 +23,49 @@ final class DashboardController extends AbstractController
             'controller_name' => 'DashboardController',
         ]);
     }
-	#[IsGranted('ROLE_USER')]
-	#[Route('/dashboardExemple', name: 'app_dashboard_exemple')]
-    public function dashboardExemple(): Response
-    {
-        return $this->render('dashboard/exemple.html.twig', [
-            'controller_name' => 'DashboardController',
-        ]);
-    }
-	
-	//fonction exemple
-	#[IsGranted('ROLE_ADMIN')]
-	#[Route('/dashboardAdmin', name: 'app_dashboard_admin')]
-    public function dashboardAdmin(EntityManagerInterface $entityManager): Response
-    {
-		//récupération de tous les users
-        $users = $entityManager->getRepository(User::class)->findAll();
-		//ce return renvoie vers template/dashboard/admin
-		return $this->render('dashboard/admin.html.twig', [
-            'users' => $users,
-        ]);
-    }
+#[IsGranted('ROLE_USER')]
+#[Route('/dashboardExemple', name: 'app_dashboard_exemple')]
+public function dashboardExemple(): Response
+{
+    return $this->render('dashboard/exemple.html.twig', [
+        'controller_name' => 'DashboardController',
+    ]);
+}
+
+// Admin : démonstration de 3 critères
+#[IsGranted('ROLE_ADMIN')]
+#[Route('/dashboardAdmin', name: 'app_dashboard_admin')]
+public function dashboardAdmin(EntityManagerInterface $em): Response
+{
+    $user = $this->getUser();
+
+    // Critère 1 : Notes "En cours"
+    $notesEnCours = $em->createQueryBuilder()
+        ->select('n')
+        ->from(Note::class, 'n')
+        ->join('n.etat', 'e')
+        ->where('e.nom = :etat')
+        ->setParameter('etat', 'En cours')
+        ->getQuery()
+        ->getResult();
+
+    // Critère 2 : Notes taguées "Urgent"
+    $notesUrgentes = $em->createQueryBuilder()
+        ->select('n')
+        ->from(Note::class, 'n')
+        ->join('n.tag', 't')
+        ->where('t.nom = :tag')
+        ->setParameter('tag', 'Urgent')
+        ->getQuery()
+        ->getResult();
+
+    // Critère 3 : Notes de l'utilisateur connecté
+    $notesUtilisateur = $em->getRepository(Note::class)->findBy(['user' => $user]);
+
+    return $this->render('dashboard/admin.html.twig', [
+        'notes_en_cours' => $notesEnCours,
+        'notes_urgentes' => $notesUrgentes,
+        'notes_utilisateur' => $notesUtilisateur,
+    ]);
+}
 }
