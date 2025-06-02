@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Liste des BUT de l'IUT de Roanne</h1>
+
+    <ul id="listeBUT">
+        <li>BUT RT</li>
+        <li>BUT GIM</li>
+    </ul>
+
+    <input type="text" id="nouveauBUT" placeholder="Nouveau BUT">
+    <button onclick="ajouterBUT()">Ajouter un BUT</button>
+    <button onclick="supprimerDernierBUT()">Supprimer le dernier BUT</button>
+
+    <script>
+        function ajouterBUT() {
+            const input = document.getElementById("nouveauBUT");
+            const valeur = input.value.trim();
+            if (valeur !== "") {
+                const li = document.createElement("li");
+                li.textContent = valeur;
+                document.getElementById("listeBUT").appendChild(li);
+                input.value = "";
+            } else {
+                alert("Veuillez entrer un nom de BUT.");
+            }
+        }
+
+        function supprimerDernierBUT() {
+            const liste = document.getElementById("listeBUT");
+            if (liste.lastElementChild) {
+                liste.removeChild(liste.lastElementChild);
+            } else {
+                alert("Il n'y a plus d'éléments à supprimer !");
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,13 +1,6 @@
+{% extends 'base.html.twig' %}
+
 {% block body %}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Date Twig</title>
-</head>
-<body>
-    <h1>Date et heure (via Twig)</h1>
-    <p>{{ date.format('d/m/Y H:i:s') }}</p>
-</body>
-</html>
+    <h1>Bonjour {{ prenom }} {{ nom }} !</h1>
+    <p>Nous sommes le {{ date.format('d/m/Y') }} à {{ date.format('H:i:s') }}</p>
 {% endblock %}
